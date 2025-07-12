@@ -80,27 +80,6 @@ const Discover = () => {
           ))}
         </div>
 
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center"
-        >
-          <Card className="glass border-0 shadow-nord max-w-2xl mx-auto">
-            <CardContent className="p-8">
-              <h2 className="text-2xl font-medium mb-4">Ready to Start Discovering?</h2>
-              <p className="text-muted-foreground mb-6 font-light">
-                Join thousands of learners who are already exchanging skills and growing together.
-              </p>
-              <Button 
-                size="lg"
-                className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-nord rounded-xl px-8 font-medium"
-              >
-                Start Exploring
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.section>
       </main>
     </div>
   );
