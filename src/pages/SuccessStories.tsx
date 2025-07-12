@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Quote, Star } from 'lucide-react';
@@ -7,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Header from '@/components/Header';
 
-const SuccessStories = () => {
+const SuccessStories = ({ currentUser, onLogin, onRegister, onLogout }) => {
   const stories = [
     {
       name: "Sarah Chen",
@@ -59,13 +58,12 @@ const SuccessStories = () => {
       </div>
 
       <Header 
-        currentUser={null} 
-        onLoginClick={() => {}}
-        onRegisterClick={() => {}}
-        onProfileClick={() => {}}
-        onLogout={() => {}}
+        currentUser={currentUser}
+        onLogin={onLogin}
+        onRegister={onRegister}
+        onLogout={onLogout}
         onMessagesClick={() => {}}
-        unreadMessagesCount={0}
+        unreadMessagesCount={0} // Replace with actual data if available
       />
 
       <main className="container mx-auto px-6 py-12 relative z-10">
@@ -164,20 +162,23 @@ const SuccessStories = () => {
           transition={{ duration: 0.6, delay: 1 }}
           className="text-center"
         >
-          <Card className="glass border-0 shadow-nord max-w-2xl mx-auto">
-            <CardContent className="p-8">
-              <h2 className="text-2xl font-medium mb-4">Start Your Success Story</h2>
-              <p className="text-muted-foreground mb-6 font-light">
-                Join thousands of learners who have already transformed their skills and careers.
-              </p>
-              <Button 
-                size="lg"
-                className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-nord rounded-xl px-8 font-medium"
-              >
-                Begin Your Journey
-              </Button>
-            </CardContent>
-          </Card>
+          {!currentUser && (
+            <Card className="glass border-0 shadow-nord max-w-2xl mx-auto">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-medium mb-4">Start Your Success Story</h2>
+                <p className="text-muted-foreground mb-6 font-light">
+                  Join thousands of learners who have already transformed their skills and careers.
+                </p>
+                <Button
+                  size="lg"
+                  onClick={onRegister}
+                  className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-nord rounded-xl px-8 font-medium"
+                >
+                  Begin Your Journey
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </motion.section>
       </main>
     </div>

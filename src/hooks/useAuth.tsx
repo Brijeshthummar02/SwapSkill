@@ -6,18 +6,25 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  onLogin: () => void;
+  onRegister: () => void;
+  onLogout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   loading: true,
+  onLogin: () => {},
+  onRegister: () => {},
+  onLogout: () => {},
 });
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
 
   useEffect(() => {
     const getSession = async () => {
@@ -41,13 +48,27 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  const onLogin = () => setAuthModal({ isOpen: true, mode: 'login' });
+  const onRegister = () => setAuthModal({ isOpen: true, mode: 'register' });
+  const onLogout = async () => {
+    await authHelpers.signOut();
+  };
+
   const value = {
     session,
     user,
     loading,
+    onLogin,
+    onRegister,
+    onLogout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {/* Render AuthModal here so it can be triggered from anywhere */}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

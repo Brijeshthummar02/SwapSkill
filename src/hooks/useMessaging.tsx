@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 // Mock messaging data and functions
@@ -108,97 +107,96 @@ const mockConversations = [
   }
 ];
 
-export const useMessaging = (currentUser) => {
-  const [conversations, setConversations] = useState([]);
-  const [selectedConversation, setSelectedConversation] = useState(null);
+export const useMessaging = (currentUserId) => {
+  const [conversations, setConversations] = useState(mockConversations);
+  const [currentConversation, setCurrentConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (currentUser) {
-      // Simulate loading conversations for the current user
-      setConversations(mockConversations);
+    if (currentConversation) {
+      setMessages(currentConversation.messages);
+    } else {
+      setMessages([]);
     }
-  }, [currentUser]);
+  }, [currentConversation]);
 
-  const selectConversation = (conversation) => {
-    // Mark messages as read when conversation is selected
-    const updatedConversation = {
-      ...conversation,
-      unreadCount: 0,
-      messages: conversation.messages.map(msg => ({ ...msg, read: true }))
-    };
-    
-    setSelectedConversation(updatedConversation);
-    
-    // Update the conversation in the list
-    setConversations(prev => 
-      prev.map(conv => 
-        conv.id === conversation.id ? updatedConversation : conv
-      )
-    );
+  const findOrCreateConversation = async (otherUserId) => {
+    setLoading(true);
+    try {
+      const conversation = conversations.find(c => c.otherUser.id === otherUserId);
+      if (conversation) {
+        setCurrentConversation(conversation);
+      } else {
+        // This is a mock, in a real app you'd fetch the user's data
+        const otherUser = {
+          id: otherUserId,
+          name: "New Match",
+          profilePhoto: null,
+          isOnline: false,
+          rating: 0,
+          location: "Unknown"
+        };
+        const newConversation = {
+          id: Date.now(),
+          otherUser,
+          messages: [],
+          lastMessage: null,
+          unreadCount: 0,
+        };
+        setConversations(prev => [newConversation, ...prev]);
+        setCurrentConversation(newConversation);
+      }
+    } catch (e) {
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const sendMessage = (conversationId, messageText) => {
+  const sendMessage = async (messageText) => {
+    if (!currentConversation) return;
+
     const newMessage = {
       id: Date.now(),
-      senderId: currentUser.id,
+      senderId: currentUserId,
       text: messageText,
       timestamp: new Date().toISOString(),
-      read: false
+      read: false,
     };
 
-    // Update the selected conversation
-    if (selectedConversation && selectedConversation.id === conversationId) {
-      const updatedConversation = {
-        ...selectedConversation,
-        messages: [...selectedConversation.messages, newMessage],
-        lastMessage: {
-          text: messageText,
-          timestamp: newMessage.timestamp
-        }
-      };
-      setSelectedConversation(updatedConversation);
-    }
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
 
-    // Update the conversations list
+    const updatedConversation = {
+      ...currentConversation,
+      messages: updatedMessages,
+      lastMessage: {
+        text: messageText,
+        timestamp: newMessage.timestamp,
+      },
+    };
+
+    setCurrentConversation(updatedConversation);
     setConversations(prev =>
-      prev.map(conv =>
-        conv.id === conversationId
-          ? {
-              ...conv,
-              messages: [...conv.messages, newMessage],
-              lastMessage: {
-                text: messageText,
-                timestamp: newMessage.timestamp
-              }
-            }
-          : conv
-      )
+      prev.map(c => (c.id === currentConversation.id ? updatedConversation : c))
     );
-  };
-
-  const createConversation = (otherUser) => {
-    const newConversation = {
-      id: Date.now(),
-      otherUser,
-      messages: [],
-      lastMessage: null,
-      unreadCount: 0
-    };
-
-    setConversations(prev => [newConversation, ...prev]);
-    return newConversation;
   };
 
   const getTotalUnreadCount = () => {
-    return conversations.reduce((total, conv) => total + conv.unreadCount, 0);
+    return conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
   };
 
   return {
     conversations,
-    selectedConversation,
-    selectConversation,
+    currentConversation,
+    messages,
+    loading,
+    error,
+    findOrCreateConversation,
     sendMessage,
-    createConversation,
-    getTotalUnreadCount
+    setCurrentConversation,
+    getTotalUnreadCount,
   };
 };
