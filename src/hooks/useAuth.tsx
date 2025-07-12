@@ -6,6 +6,7 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  refetchUser: () => void;
   onLogin: () => void;
   onRegister: () => void;
   onLogout: () => void;
@@ -15,6 +16,7 @@ export const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   loading: true,
+  refetchUser: () => {},
   onLogin: () => {},
   onRegister: () => {},
   onLogout: () => {},
@@ -26,11 +28,15 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
 
+  const refetchUser = async () => {
+    const { data } = await authHelpers.getSession();
+    setSession(data.session);
+    setUser(data.session?.user ?? null);
+  };
+
   useEffect(() => {
     const getSession = async () => {
-      const { data } = await authHelpers.getSession();
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
+      await refetchUser();
       setLoading(false);
     };
 
@@ -58,6 +64,7 @@ export const AuthProvider = ({ children }) => {
     session,
     user,
     loading,
+    refetchUser,
     onLogin,
     onRegister,
     onLogout,

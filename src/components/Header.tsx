@@ -181,15 +181,17 @@ const Header = ({ currentUser, onLogin, onRegister, onLogout, onMessagesClick, u
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-border/50" />
-                    <DropdownMenuItem
-                      className="hover:bg-accent/50 cursor-pointer p-3"
-                    >
-                      <User className="mr-3 h-4 w-4" />
-                      <span>Profile</span>
+                    <DropdownMenuItem asChild className="hover:bg-accent/50 cursor-pointer p-3">
+                      <Link to="/profile">
+                        <User className="mr-3 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-accent/50 cursor-pointer p-3">
-                      <Settings className="mr-3 h-4 w-4" />
-                      <span>Settings</span>
+                    <DropdownMenuItem asChild className="hover:bg-accent/50 cursor-pointer p-3">
+                      <Link to="/settings">
+                        <Settings className="mr-3 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
                       <>

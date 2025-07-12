@@ -4,4 +4,7 @@ export interface UserMetadata {
   isOnline?: boolean;
   rating?: number;
   reviewCount?: number;
+  location?: string;
+  skills?: string[];
+  interests?: string[];
 }
