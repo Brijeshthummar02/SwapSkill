@@ -23,7 +23,7 @@ import { useAuth } from "./hooks/useAuth";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { user } = useAuth();
+  const { user: currentUser, onLogin, onRegister, onLogout } = useAuth();
 
   return (
     <AdminAuthProvider>
@@ -38,6 +38,28 @@ const AppContent = () => {
           <Route path="/success-stories" element={<SuccessStories />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/how-it-works"
+            element={
+              <HowItWorks
+                currentUser={currentUser}
+                onLogin={onLogin}
+                onRegister={onRegister}
+                onLogout={onLogout}
+              />
+            }
+          />
+          <Route
+            path="/success-stories"
+            element={
+              <SuccessStories
+                currentUser={currentUser}
+                onLogin={onLogin}
+                onRegister={onRegister}
+                onLogout={onLogout}
+              />
+            }
+          />
 
           {/* Admin Routes */}
           <Route

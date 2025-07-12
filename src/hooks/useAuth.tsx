@@ -7,6 +7,9 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   refetchUser: () => void;
+  onLogin: () => void;
+  onRegister: () => void;
+  onLogout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -14,12 +17,16 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   refetchUser: () => {},
+  onLogin: () => {},
+  onRegister: () => {},
+  onLogout: () => {},
 });
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
 
   const refetchUser = async () => {
     const { data } = await authHelpers.getSession();
@@ -47,14 +54,28 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  const onLogin = () => setAuthModal({ isOpen: true, mode: 'login' });
+  const onRegister = () => setAuthModal({ isOpen: true, mode: 'register' });
+  const onLogout = async () => {
+    await authHelpers.signOut();
+  };
+
   const value = {
     session,
     user,
     loading,
     refetchUser,
+    onLogin,
+    onRegister,
+    onLogout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {/* Render AuthModal here so it can be triggered from anywhere */}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

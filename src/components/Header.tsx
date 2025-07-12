@@ -23,31 +23,31 @@ import {
 import { motion } from "framer-motion";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import NotificationsPopover from "./NotificationsPopover";
-import { useAuth } from "@/hooks/useAuth";
 import AuthModal from "./AuthModal";
 import { authHelpers } from "@/lib/supabase";
 import { UserMetadata } from "@/types/user";
 
-const Header = () => {
-  const { user: currentUser } = useAuth();
+const Header = ({ currentUser, onLogin, onRegister, onLogout, onMessagesClick, unreadMessagesCount }) => {
   const location = useLocation();
   const { isAdmin } = useAdminAuth();
   const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
   const userMetadata = currentUser?.user_metadata as UserMetadata;
 
-  const onLoginClick = () => setAuthModal({ isOpen: true, mode: 'login' });
-  const onRegisterClick = () => setAuthModal({ isOpen: true, mode: 'register' });
-  const onLogout = async () => {
-    await authHelpers.signOut();
-  };
-  const onMessagesClick = () => { /* Implement navigation to messages page */ };
-  const unreadMessagesCount = 0; // Replace with actual data
+  const onLoginClick = onLogin || (() => setAuthModal({ isOpen: true, mode: 'login' }));
+  const onRegisterClick = onRegister || (() => setAuthModal({ isOpen: true, mode: 'register' }));
 
-  const navigationItems = [
+  const loggedInNav = [
+    { name: "Matches", path: "/matches" },
+    { name: "How it Works", path: "/how-it-works" },
+  ];
+
+  const loggedOutNav = [
     { name: "Discover", path: "/discover" },
     { name: "How it Works", path: "/how-it-works" },
     { name: "Success Stories", path: "/success-stories" },
   ];
+
+  const navigationItems = currentUser ? loggedInNav : loggedOutNav;
 
   const isActivePath = (path: string) => location.pathname === path;
 
@@ -209,7 +209,7 @@ const Header = () => {
                     )}
                     <DropdownMenuSeparator className="bg-border/50" />
                     <DropdownMenuItem
-                      onClick={onLogout}
+                      onClick={onLogout || (async () => await authHelpers.signOut())}
                       className="hover:bg-accent/50 cursor-pointer p-3"
                     >
                       <LogOut className="mr-3 h-4 w-4" />
