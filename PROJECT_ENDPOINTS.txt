@@ -1,0 +1,449 @@
+SwapSkill Project API Endpoints Documentation
+==============================================
+
+BASE URL: {VITE_SUPABASE_URL}/rest/v1/
+AUTH: Bearer {JWT_TOKEN} (obtained from Supabase Auth)
+
+==============================================
+AUTHENTICATION ENDPOINTS
+==============================================
+
+1. User Registration
+   POST /auth/v1/signup
+   Body: {
+     "email": "user@example.com",
+     "password": "password123",
+     "data": {
+       "full_name": "User Name",
+       "location": "City, State"
+     }
+   }
+
+2. User Login
+   POST /auth/v1/token?grant_type=password
+   Body: {
+     "email": "user@example.com",
+     "password": "password123"
+   }
+
+3. User Logout
+   POST /auth/v1/logout
+   Headers: Authorization: Bearer {token}
+
+4. Get Current User
+   GET /auth/v1/user
+   Headers: Authorization: Bearer {token}
+
+5. Get Current Session
+   GET /auth/v1/user
+   Headers: Authorization: Bearer {token}
+
+6. Password Reset
+   POST /auth/v1/recover
+   Body: {
+     "email": "user@example.com"
+   }
+
+==============================================
+PROFILES ENDPOINTS
+==============================================
+
+7. Get All Profiles (Public)
+   GET /profiles?select=*
+   
+8. Get Profile by ID
+   GET /profiles?select=*&id=eq.{user_id}
+
+9. Create User Profile
+   POST /profiles
+   Body: {
+     "id": "{user_id}",
+     "email": "user@example.com",
+     "full_name": "User Name",
+     "avatar_url": "https://...",
+     "location": "City, State",
+     "bio": "User bio text",
+     "phone": "+1234567890"
+   }
+
+10. Update User Profile
+    PATCH /profiles?id=eq.{user_id}
+    Body: {
+      "full_name": "Updated Name",
+      "avatar_url": "https://...",
+      "location": "New City, State",
+      "bio": "Updated bio",
+      "phone": "+1234567890",
+      "is_online": true
+    }
+
+11. Get User's Rating Stats
+    GET /profiles?select=rating,review_count&id=eq.{user_id}
+
+==============================================
+SKILLS ENDPOINTS
+==============================================
+
+12. Get All Skills
+    GET /skills?select=*
+
+13. Get Skills by Category
+    GET /skills?select=*&category=eq.{category_name}
+
+14. Create New Skill (Admin only)
+    POST /skills
+    Body: {
+      "name": "Skill Name",
+      "category": "Category",
+      "description": "Skill description"
+    }
+
+15. Search Skills
+    GET /skills?select=*&name=ilike.%{search_term}%
+
+==============================================
+USER SKILLS ENDPOINTS
+==============================================
+
+16. Get User's Teaching Skills
+    GET /user_skills?select=*,skills(*)&user_id=eq.{user_id}
+
+17. Add User Teaching Skill
+    POST /user_skills
+    Body: {
+      "user_id": "{user_id}",
+      "skill_id": "{skill_id}",
+      "proficiency_level": "advanced",
+      "years_experience": 5,
+      "is_verified": false
+    }
+
+18. Update User Skill
+    PATCH /user_skills?user_id=eq.{user_id}&skill_id=eq.{skill_id}
+    Body: {
+      "proficiency_level": "expert",
+      "years_experience": 7
+    }
+
+19. Delete User Skill
+    DELETE /user_skills?user_id=eq.{user_id}&skill_id=eq.{skill_id}
+
+20. Get All Users with Specific Skill
+    GET /user_skills?select=*,profiles(*),skills(*)&skill_id=eq.{skill_id}
+
+==============================================
+LEARNING INTERESTS ENDPOINTS
+==============================================
+
+21. Get User's Learning Interests
+    GET /user_learning_interests?select=*,skills(*)&user_id=eq.{user_id}
+
+22. Add Learning Interest
+    POST /user_learning_interests
+    Body: {
+      "user_id": "{user_id}",
+      "skill_id": "{skill_id}",
+      "interest_level": "serious",
+      "preferred_learning_style": "hands-on"
+    }
+
+23. Update Learning Interest
+    PATCH /user_learning_interests?user_id=eq.{user_id}&skill_id=eq.{skill_id}
+    Body: {
+      "interest_level": "urgent",
+      "preferred_learning_style": "video tutorials"
+    }
+
+24. Delete Learning Interest
+    DELETE /user_learning_interests?user_id=eq.{user_id}&skill_id=eq.{skill_id}
+
+==============================================
+SKILL SWAPS ENDPOINTS
+==============================================
+
+25. Get User's Skill Swaps
+    GET /skill_swaps?select=*,profiles!teacher_id(*),profiles!learner_id(*),skills!teaching_skill_id(*),skills!learning_skill_id(*)&or=(teacher_id.eq.{user_id},learner_id.eq.{user_id})
+
+26. Create Skill Swap Request
+    POST /skill_swaps
+    Body: {
+      "teacher_id": "{teacher_user_id}",
+      "learner_id": "{learner_user_id}",
+      "teaching_skill_id": "{skill_id}",
+      "learning_skill_id": "{skill_id}",
+      "proposed_duration": "1 hour per session",
+      "proposed_schedule": "Weekends",
+      "meeting_type": "online",
+      "location": "Zoom",
+      "message": "Looking forward to learning from you!"
+    }
+
+27. Update Skill Swap Status
+    PATCH /skill_swaps?id=eq.{swap_id}
+    Body: {
+      "status": "accepted",
+      "updated_at": "2024-01-20T10:30:00Z"
+    }
+
+28. Get Swap Details
+    GET /skill_swaps?select=*,profiles!teacher_id(*),profiles!learner_id(*),skills!teaching_skill_id(*),skills!learning_skill_id(*)&id=eq.{swap_id}
+
+29. Cancel Skill Swap
+    PATCH /skill_swaps?id=eq.{swap_id}
+    Body: {
+      "status": "cancelled"
+    }
+
+==============================================
+MESSAGES ENDPOINTS
+==============================================
+
+30. Get Messages for a Swap
+    GET /messages?select=*,profiles(*)&swap_id=eq.{swap_id}&order=created_at.asc
+
+31. Send Message
+    POST /messages
+    Body: {
+      "swap_id": "{swap_id}",
+      "sender_id": "{user_id}",
+      "content": "Message content here",
+      "is_read": false
+    }
+
+32. Mark Message as Read
+    PATCH /messages?id=eq.{message_id}
+    Body: {
+      "is_read": true
+    }
+
+33. Get Unread Messages Count
+    GET /messages?select=count&is_read=eq.false&swap_id=in.({user_swap_ids})
+
+==============================================
+REVIEWS ENDPOINTS
+==============================================
+
+34. Get Public Reviews
+    GET /reviews?select=*,profiles!reviewer_id(*),profiles!reviewee_id(*)&is_public=eq.true
+
+35. Get Reviews for User
+    GET /reviews?select=*,profiles!reviewer_id(*)&reviewee_id=eq.{user_id}&is_public=eq.true
+
+36. Create Review
+    POST /reviews
+    Body: {
+      "swap_id": "{swap_id}",
+      "reviewer_id": "{reviewer_id}",
+      "reviewee_id": "{reviewee_id}",
+      "rating": 5,
+      "comment": "Great experience!",
+      "is_public": true
+    }
+
+37. Update Review
+    PATCH /reviews?id=eq.{review_id}
+    Body: {
+      "rating": 4,
+      "comment": "Updated review comment",
+      "is_public": false
+    }
+
+==============================================
+ADMIN ENDPOINTS
+==============================================
+
+38. Get Admin Users
+    GET /admin_users?select=*,profiles(*)
+
+39. Create Admin User
+    POST /admin_users
+    Body: {
+      "user_id": "{user_id}",
+      "permissions": ["moderate_content", "manage_users"],
+      "created_by": "{admin_user_id}"
+    }
+
+40. Update Admin Permissions
+    PATCH /admin_users?user_id=eq.{user_id}
+    Body: {
+      "permissions": ["moderate_content", "manage_users", "system_admin"]
+    }
+
+41. Delete Admin User
+    DELETE /admin_users?user_id=eq.{user_id}
+
+==============================================
+REPORTS/MODERATION ENDPOINTS
+==============================================
+
+42. Get All Reports (Admin)
+    GET /reports?select=*,profiles!reporter_id(*),profiles!reported_user_id(*)
+
+43. Get Pending Reports
+    GET /reports?select=*,profiles!reporter_id(*),profiles!reported_user_id(*)&status=eq.pending
+
+44. Create Report
+    POST /reports
+    Body: {
+      "reporter_id": "{reporter_id}",
+      "reported_user_id": "{reported_user_id}",
+      "reported_content_type": "user",
+      "reported_content_id": "{content_id}",
+      "reason": "inappropriate_content",
+      "description": "Detailed description of the issue"
+    }
+
+45. Update Report Status
+    PATCH /reports?id=eq.{report_id}
+    Body: {
+      "status": "resolved",
+      "reviewed_by": "{admin_user_id}",
+      "reviewed_at": "2024-01-20T10:30:00Z"
+    }
+
+==============================================
+SEARCH & DISCOVERY ENDPOINTS
+==============================================
+
+46. Search Users by Skills
+    GET /user_skills?select=*,profiles(*),skills(*)&skills.name=ilike.%{skill_name}%
+
+47. Find Potential Matches
+    GET /user_learning_interests?select=*,profiles(*),skills(*)&skill_id=in.({user_teaching_skill_ids})
+
+48. Advanced User Search
+    GET /profiles?select=*&location=ilike.%{location}%&is_online=eq.true
+
+49. Get Recent Activity
+    GET /skill_swaps?select=*,profiles!teacher_id(*),profiles!learner_id(*)&order=created_at.desc&limit=10
+
+50. Get Platform Statistics
+    GET /rpc/get_platform_stats
+    
+==============================================
+REALTIME SUBSCRIPTIONS
+==============================================
+
+51. Subscribe to User's Messages
+    WebSocket: wss://{SUPABASE_URL}/realtime/v1/websocket
+    Channel: realtime:public:messages:swap_id=eq.{swap_id}
+
+52. Subscribe to Skill Swap Updates
+    Channel: realtime:public:skill_swaps:id=eq.{swap_id}
+
+53. Subscribe to New Reports (Admin)
+    Channel: realtime:public:reports:status=eq.pending
+
+==============================================
+CUSTOM RPC FUNCTIONS
+==============================================
+
+54. Handle New User Registration (Trigger)
+    Function: public.handle_new_user()
+    Auto-executed on user signup
+
+55. Update User Rating (Custom)
+    POST /rpc/update_user_rating
+    Body: {
+      "user_id": "{user_id}",
+      "new_rating": 4.8,
+      "review_count": 25
+    }
+
+==============================================
+QUERY PARAMETERS & FILTERS
+==============================================
+
+Common Query Parameters:
+- select=*                    # Select all columns
+- select=column1,column2      # Select specific columns
+- order=created_at.desc       # Order by column
+- limit=10                    # Limit results
+- offset=20                   # Pagination offset
+- id=eq.{value}              # Equals filter
+- name=ilike.%{term}%        # Case-insensitive search
+- created_at=gte.{date}      # Greater than or equal
+- status=in.(pending,active) # In array filter
+- is_online=eq.true          # Boolean filter
+
+==============================================
+ERROR RESPONSES
+==============================================
+
+400 Bad Request - Invalid parameters
+401 Unauthorized - Missing or invalid auth token
+403 Forbidden - Insufficient permissions
+404 Not Found - Resource doesn't exist
+409 Conflict - Resource already exists
+422 Unprocessable Entity - Validation errors
+500 Internal Server Error - Server error
+
+==============================================
+RATE LIMITS
+==============================================
+
+- Authentication: 60 requests per minute
+- API calls: 100 requests per minute per user
+- Realtime: 100 concurrent connections
+- File uploads: 10MB max file size
+
+==============================================
+ENVIRONMENT VARIABLES REQUIRED
+==============================================
+
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+VITE_ADMIN_EMAIL=admin@skillswap.com
+
+==============================================
+NOTES
+==============================================
+
+1. All endpoints require proper CORS configuration
+2. Row Level Security (RLS) is enabled on all tables
+3. User can only access their own data unless specified
+4. Admin endpoints require admin role verification
+5. Real-time features use WebSocket connections
+6. File uploads use Supabase Storage buckets
+7. All timestamps are in ISO 8601 format
+8. UUIDs are used for all primary keys
+9. Email verification required for new accounts
+10. JWT tokens expire after 1 hour by default
+
+==============================================
+AUTHENTICATION FLOW
+==============================================
+
+1. User registers → Email verification sent
+2. User clicks verification link → Account activated
+3. User logs in → JWT token returned
+4. Include token in Authorization header for API calls
+5. Token auto-refreshes when near expiration
+6. User logs out → Token invalidated
+
+==============================================
+ADMIN FEATURES
+==============================================
+
+- User management (view, suspend, delete)
+- Content moderation (reports, reviews)
+- Platform statistics and analytics
+- System configuration
+- Skill category management
+- Announcement broadcasting
+
+==============================================
+SECURITY CONSIDERATIONS
+==============================================
+
+- All sensitive operations require authentication
+- Admin functions require elevated permissions
+- User data protected by Row Level Security
+- Input validation on all endpoints
+- SQL injection protection built-in
+- HTTPS required in production
+- API key rotation recommended quarterly
+
+==============================================
+END OF DOCUMENTATION
+==============================================
