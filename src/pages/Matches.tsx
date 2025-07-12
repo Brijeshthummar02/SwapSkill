@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import UserCard from '@/components/UserCard';
+import MessagingModal from '@/components/MessagingModal';
+import { useMessaging } from '@/hooks/useMessaging';
 
 const Matches = ({ currentUser, onLogin, onRegister, onLogout }) => {
   const [users, setUsers] = useState([]);
@@ -14,6 +16,28 @@ const Matches = ({ currentUser, onLogin, onRegister, onLogout }) => {
   const [swipeDirection, setSwipeDirection] = useState(null);
   const [matches, setMatches] = useState([]);
   const [superLikesLeft, setSuperLikesLeft] = useState(3);
+  const [isMessagingModalOpen, setMessagingModalOpen] = useState(false);
+
+  const {
+    conversations,
+    currentConversation,
+    messages,
+    loading,
+    error,
+    findOrCreateConversation,
+    sendMessage,
+    setCurrentConversation,
+    getTotalUnreadCount
+  } = useMessaging(currentUser?.id);
+
+  const handleMessageUser = async (userId) => {
+    if (!currentUser) {
+      onLogin();
+      return;
+    }
+    await findOrCreateConversation(userId);
+    setMessagingModalOpen(true);
+  };
 
   // Mock data for potential matches
   useEffect(() => {
@@ -112,11 +136,11 @@ const Matches = ({ currentUser, onLogin, onRegister, onLogout }) => {
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-accent/30">
       <Header 
         currentUser={currentUser}
-        onLoginClick={() => {}}
-        onRegisterClick={() => {}}
+        onLogin={onLogin}
+        onRegister={onRegister}
         onLogout={onLogout}
-        onProfileClick={() => {}}
         onMessagesClick={() => {}}
+        unreadMessagesCount={getTotalUnreadCount()}
       />
 
       <main className="container mx-auto px-6 py-8">
@@ -191,7 +215,7 @@ const Matches = ({ currentUser, onLogin, onRegister, onLogout }) => {
                   user={currentUser_card}
                   currentUser={currentUser}
                   onSwapRequest={(user) => handleSwipe('right', user)}
-                  onMessageUser={() => {}}
+                  onMessageUser={handleMessageUser}
                   onSuperLike={(user) => handleSwipe('super', user)}
                   onPass={(user) => handleSwipe('left', user)}
                   showMatchActions={true}
@@ -320,6 +344,15 @@ const Matches = ({ currentUser, onLogin, onRegister, onLogout }) => {
           </motion.div>
         )}
       </main>
+
+      <MessagingModal
+        isOpen={isMessagingModalOpen}
+        onClose={() => setMessagingModalOpen(false)}
+        conversation={currentConversation}
+        currentUser={currentUser}
+        onSendMessage={sendMessage}
+        loading={loading}
+      />
     </div>
   );
 };
