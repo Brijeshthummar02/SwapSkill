@@ -1,5 +1,8 @@
 # Skill Swap Platform  - Problem Statement 1
 
+# Video link:
+https://drive.google.com/file/d/1q9Pia3iFOHuyi3mOIwn_0XbkuBKdrlmP/view?usp=sharing
+
 ## 📝 Overview
 Develop a **Skill Swap Platform** — a mini application that enables users to list their skills and request others in return.
 
