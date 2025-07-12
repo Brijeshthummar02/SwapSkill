@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  Search, 
-  Users, 
-  BookOpen, 
-  MessageSquare, 
-  Star, 
-  ArrowRight, 
+import {
+  Search,
+  Users,
+  BookOpen,
+  MessageSquare,
+  Star,
+  ArrowRight,
   CheckCircle,
   Zap,
   Heart,
@@ -50,14 +50,7 @@ const Index = ({ currentUser, onLogin, onRegister, onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-accent/30">
-      <Header 
-        currentUser={currentUser}
-        onLoginClick={handleLoginClick}
-        onRegisterClick={handleRegisterClick}
-        onLogout={onLogout}
-        onProfileClick={() => {}}
-        onMessagesClick={() => {}}
-      />
+      <Header />
       
       <main>
         {/* Enhanced Hero Section */}
@@ -163,8 +156,8 @@ const Index = ({ currentUser, onLogin, onRegister, onLogout }) => {
             >
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                <Input 
-                  placeholder="What would you like to learn today?" 
+                <Input
+                  placeholder="What would you like to learn today?"
                   className="glass pl-12 pr-4 py-6 text-lg rounded-2xl border-border/50 focus:border-primary/50"
                 />
                 <Link to="/discover">
@@ -305,8 +298,6 @@ const Index = ({ currentUser, onLogin, onRegister, onLogout }) => {
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         mode={authMode}
-        onLogin={(data) => handleAuthSuccess(data, 'login')}
-        onRegister={(data) => handleAuthSuccess(data, 'register')}
         onSwitchMode={setAuthMode}
       />
     </div>

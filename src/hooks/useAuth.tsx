@@ -6,12 +6,14 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  refetchUser: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   loading: true,
+  refetchUser: () => {},
 });
 
 export const AuthProvider = ({ children }) => {
@@ -19,11 +21,15 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refetchUser = async () => {
+    const { data } = await authHelpers.getSession();
+    setSession(data.session);
+    setUser(data.session?.user ?? null);
+  };
+
   useEffect(() => {
     const getSession = async () => {
-      const { data } = await authHelpers.getSession();
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
+      await refetchUser();
       setLoading(false);
     };
 
@@ -45,6 +51,7 @@ export const AuthProvider = ({ children }) => {
     session,
     user,
     loading,
+    refetchUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
